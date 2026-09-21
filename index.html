@@ -24,7 +24,6 @@ body{
   background:#efeae2;
   display:flex;
   flex-direction:column;
-  position:relative;
   box-shadow:0 0 20px rgba(0,0,0,.15);
 }
 
@@ -57,10 +56,7 @@ body{
   flex:1;
   overflow-y:auto;
   padding:16px 12px 90px;
-  background-color:#efeae2;
-  background-image:
-    radial-gradient(circle at 20px 20px,rgba(0,0,0,.025) 1px,transparent 1px);
-  background-size:28px 28px;
+  background:#efeae2;
 }
 
 .message{
@@ -68,10 +64,9 @@ body{
   padding:10px 12px;
   border-radius:8px;
   margin-bottom:10px;
-  line-height:1.4;
+  line-height:1.45;
   font-size:15px;
   box-shadow:0 1px 1px rgba(0,0,0,.08);
-  animation:fadeIn .25s ease;
   word-wrap:break-word;
 }
 
@@ -101,13 +96,47 @@ body{
   box-shadow:0 1px 2px rgba(0,0,0,.10);
 }
 
-.option:active{transform:scale(.99)}
-
 .num{
   color:#777;
   font-weight:bold;
   margin-right:7px;
 }
+
+/* SELECTORES COMPACTOS */
+
+.selector-box{
+  background:white;
+  padding:12px;
+  border-radius:8px;
+  margin:8px 0 16px;
+  box-shadow:0 1px 2px rgba(0,0,0,.10);
+}
+
+.selector{
+  width:100%;
+  padding:13px 12px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  background:white;
+  font-size:16px;
+  color:#333;
+  outline:none;
+}
+
+.selector-button{
+  width:100%;
+  border:none;
+  background:#00a884;
+  color:white;
+  border-radius:8px;
+  padding:12px;
+  margin-top:10px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+/* INPUT */
 
 .input-area{
   position:sticky;
@@ -144,8 +173,9 @@ body{
 
 .send:disabled{
   opacity:.45;
-  cursor:default;
 }
+
+/* ARCHIVOS */
 
 .upload-box{
   background:white;
@@ -192,9 +222,7 @@ body{
   cursor:pointer;
 }
 
-.summary{
-  line-height:1.6;
-}
+.summary{line-height:1.6}
 
 .folio{
   font-size:21px;
@@ -204,9 +232,23 @@ body{
   color:#075e54;
 }
 
-@keyframes fadeIn{
-  from{opacity:0;transform:translateY(5px)}
-  to{opacity:1;transform:translateY(0)}
+.ai-badge{
+  display:inline-block;
+  background:#e7f7f3;
+  color:#067a67;
+  padding:4px 8px;
+  border-radius:12px;
+  font-size:12px;
+  font-weight:bold;
+  margin-bottom:7px;
+}
+
+.highlight{
+  background:#f4fbf9;
+  border-left:4px solid #00a884;
+  padding:10px;
+  border-radius:5px;
+  margin:10px 0;
 }
 </style>
 </head>
@@ -227,16 +269,19 @@ body{
   <div class="chat" id="chat"></div>
 
   <div class="input-area">
-    <input id="messageInput"
-           type="text"
-           placeholder="Escribe un mensaje..."
-           disabled>
+    <input
+      id="messageInput"
+      type="text"
+      placeholder="Escribe un mensaje..."
+      disabled
+    >
     <button class="send" id="sendButton" disabled>➤</button>
   </div>
 
 </div>
 
 <script>
+
 const chat=document.getElementById("chat");
 const input=document.getElementById("messageInput");
 const sendButton=document.getElementById("sendButton");
@@ -251,6 +296,8 @@ let data={
   nombre:"",
   empleado:"",
   evidencia:[],
+  fechaIngreso:"",
+  antiguedad:0,
   folio:""
 };
 
@@ -439,19 +486,13 @@ const subtopics={
 ]
 };
 
+/* UTILIDADES */
+
 function getTime(){
   return new Date().toLocaleTimeString("es-MX",{
     hour:"2-digit",
     minute:"2-digit"
   });
-}
-
-function addMessage(text,type="bot"){
-  const div=document.createElement("div");
-  div.className="message "+type;
-  div.innerHTML=text+`<span class="time">${getTime()}</span>`;
-  chat.appendChild(div);
-  scrollDown();
 }
 
 function scrollDown(){
@@ -460,19 +501,56 @@ function scrollDown(){
   },50);
 }
 
+function escapeHTML(value){
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function firstName(name){
+  return name.trim().split(/\s+/)[0] || "";
+}
+
+function addMessage(text,type="bot"){
+  const div=document.createElement("div");
+  div.className="message "+type;
+
+  div.innerHTML=
+    text+
+    `<span class="time">${getTime()}</span>`;
+
+  chat.appendChild(div);
+  scrollDown();
+}
+
+/* BOTONES */
+
 function addOptions(items,callback){
+
   const container=document.createElement("div");
   container.className="options";
 
   items.forEach((item,index)=>{
+
     const button=document.createElement("button");
+
     button.className="option";
+
     button.innerHTML=
-      `<span class="num">◾ ${index+1}.</span>${item}`;
+      `<span class="num">◾ ${index+1}.</span>${escapeHTML(item)}`;
 
     button.onclick=()=>{
+
       container.remove();
-      addMessage(item,"user");
+
+      addMessage(
+        escapeHTML(item),
+        "user"
+      );
+
       callback(item);
     };
 
@@ -483,30 +561,104 @@ function addOptions(items,callback){
   scrollDown();
 }
 
+/* SELECTOR COMPACTO */
+
+function addSelector(items,placeholder,callback){
+
+  const box=document.createElement("div");
+  box.className="selector-box";
+
+  const select=document.createElement("select");
+  select.className="selector";
+
+  const placeholderOption=document.createElement("option");
+
+  placeholderOption.value="";
+  placeholderOption.textContent=placeholder;
+  placeholderOption.disabled=true;
+  placeholderOption.selected=true;
+
+  select.appendChild(placeholderOption);
+
+  items.forEach(item=>{
+
+    const option=document.createElement("option");
+
+    option.value=item;
+    option.textContent=item;
+
+    select.appendChild(option);
+  });
+
+  const button=document.createElement("button");
+
+  button.className="selector-button";
+  button.textContent="Continuar";
+
+  button.onclick=()=>{
+
+    if(!select.value){
+      return;
+    }
+
+    const value=select.value;
+
+    box.remove();
+
+    addMessage(
+      escapeHTML(value),
+      "user"
+    );
+
+    callback(value);
+  };
+
+  box.appendChild(select);
+  box.appendChild(button);
+
+  chat.appendChild(box);
+  scrollDown();
+}
+
+/* INPUT */
+
 function enableInput(placeholder,action){
+
   currentInputAction=action;
+
   input.placeholder=placeholder;
   input.disabled=false;
   sendButton.disabled=false;
+
   input.focus();
 }
 
 function disableInput(){
+
   currentInputAction=null;
+
   input.value="";
   input.disabled=true;
   sendButton.disabled=true;
+
   input.placeholder="Escribe un mensaje...";
 }
 
 function submitInput(){
+
   const value=input.value.trim();
 
-  if(!value || !currentInputAction) return;
+  if(!value || !currentInputAction){
+    return;
+  }
 
   const action=currentInputAction;
 
-  addMessage(value,"user");
+  addMessage(
+    escapeHTML(value),
+    "user"
+  );
+
   disableInput();
 
   action(value);
@@ -514,137 +666,535 @@ function submitInput(){
 
 sendButton.onclick=submitInput;
 
-input.addEventListener("keydown",e=>{
-  if(e.key==="Enter"){
+input.addEventListener("keydown",event=>{
+
+  if(event.key==="Enter"){
     submitInput();
   }
 });
 
+/* INICIO */
+
 function start(){
+
   addMessage(`
-    👋 ¡Hola! Bienvenido al <b>Centro de Atención CATEM Aguascalientes</b>.<br><br>
+    👋 ¡Hola! Bienvenido al
+    <b>Centro de Atención CATEM Aguascalientes</b>.<br><br>
+
     Estamos aquí para <b>escucharte, orientarte y dar seguimiento</b>
     a cualquier duda o situación relacionada con tu trabajo. 🤝<br><br>
+
     Para comenzar, dinos:<br><br>
-    🏭 <b>¿En qué empresa trabajas?</b><br><br>
-    Selecciona tu empresa de la lista 👇
+
+    🏭 <b>¿En qué empresa trabajas?</b>
   `);
 
   setTimeout(()=>{
-    addOptions(companies,selectCompany);
-  },400);
+
+    addSelector(
+      companies,
+      "🏭 Seleccionar empresa",
+      selectCompany
+    );
+
+  },300);
 }
 
 function selectCompany(company){
+
   data.empresa=company;
 
   setTimeout(()=>{
+
     addMessage(`
       🤝 Gracias.<br><br>
-      📋 <b>¿Sobre qué tema necesitas apoyo?</b><br><br>
-      Selecciona una opción 👇
+
+      📋 <b>¿Sobre qué tema necesitas apoyo?</b>
     `);
 
-    addOptions(topics,selectTopic);
-  },350);
+    addSelector(
+      topics,
+      "📋 Seleccionar tema",
+      selectTopic
+    );
+
+  },300);
 }
 
 function selectTopic(topic){
+
   data.tema=topic;
 
   if(topic==="📝 Otro tema"){
+
     data.subtema="Otro tema";
+
     requestDescription();
+
     return;
   }
 
   setTimeout(()=>{
+
     addMessage(`
-      <b>${topic}</b><br><br>
+      <b>${escapeHTML(topic)}</b><br><br>
       ¿Cuál de estas situaciones describe mejor lo que necesitas?
     `);
 
-    addOptions(subtopics[topic],selectSubtopic);
-  },350);
+    addOptions(
+      subtopics[topic],
+      selectSubtopic
+    );
+
+  },300);
 }
 
 function selectSubtopic(subtopic){
+
   data.subtema=subtopic;
 
   setTimeout(()=>{
     requestDescription();
-  },350);
+  },300);
 }
 
+/* DESCRIPCIÓN */
+
 function requestDescription(){
+
   addMessage(`
     📝 <b>Ahora cuéntanos brevemente qué está sucediendo.</b><br><br>
+
     Describe la situación con tus propias palabras.
-    No te preocupes por utilizar términos técnicos; escribe lo que pasó
-    de la manera más sencilla posible.<br><br>
-    💡 Entre más información nos compartas, mejor podremos orientarte.
+    No te preocupes por utilizar términos técnicos;
+    escribe lo que pasó de la manera más sencilla posible.<br><br>
+
+    💡 Entre más información nos compartas,
+    mejor podremos orientarte.
   `);
 
-  enableInput("Describe aquí tu situación...",receiveDescription);
+  enableInput(
+    "Describe aquí tu situación...",
+    receiveDescription
+  );
 }
 
 function receiveDescription(value){
+
   data.descripcion=value;
 
+  /*
+  ==========================================
+  ÚNICA RUTA INTELIGENTE DEL DEMO
+  ==========================================
+  */
+
+  if(
+    data.tema==="🏖️ Vacaciones y permisos" &&
+    data.subtema==="Tengo dudas sobre cuántos días me corresponden"
+  ){
+
+    setTimeout(()=>{
+      startVacationAI();
+    },450);
+
+    return;
+  }
+
+  /*
+  TODAS LAS DEMÁS RUTAS
+  CONTINÚAN COMO ANTES
+  */
+
   setTimeout(()=>{
+    requestName();
+  },400);
+}
+
+/* ========================================
+   RUTA INTELIGENTE VACACIONES
+======================================== */
+
+function startVacationAI(){
+
+  addMessage(`
+    <span class="ai-badge">✨ Orientación inteligente</span><br>
+
+    Entiendo. Para poder calcular los días de vacaciones
+    que te corresponden necesito conocer tu antigüedad.<br><br>
+
+    📅 <b>¿En qué fecha ingresaste a trabajar en
+    ${escapeHTML(data.empresa)}?</b><br><br>
+
+    Puedes escribirla, por ejemplo:<br>
+    <b>22 de abril de 2020</b>
+  `);
+
+  enableInput(
+    "Ej. 22 de abril de 2020",
+    receiveStartDate
+  );
+}
+
+function receiveStartDate(value){
+
+  const date=parseSpanishDate(value);
+
+  if(!date){
+
     addMessage(`
-      🤝 <b>Gracias por contarnos lo sucedido.</b><br><br>
-      Para poder registrar tu caso y darle seguimiento,
-      necesitamos algunos datos.<br><br>
-      👤 <b>¿Cuál es tu nombre completo?</b>
+      🤖 No pude identificar correctamente la fecha.<br><br>
+
+      Intenta escribirla de alguna de estas formas:<br><br>
+
+      📅 <b>22 de abril de 2020</b><br>
+      o<br>
+      📅 <b>22/04/2020</b>
     `);
 
-    enableInput("Escribe tu nombre completo...",receiveName);
-  },450);
+    enableInput(
+      "Ej. 22 de abril de 2020",
+      receiveStartDate
+    );
+
+    return;
+  }
+
+  const today=new Date();
+
+  if(date>today){
+
+    addMessage(`
+      🤖 La fecha que escribiste parece ser posterior
+      a la fecha actual.<br><br>
+
+      Por favor verifica tu fecha de ingreso.
+    `);
+
+    enableInput(
+      "Fecha de ingreso...",
+      receiveStartDate
+    );
+
+    return;
+  }
+
+  data.fechaIngreso=formatDate(date);
+  data.antiguedad=calculateYears(date,today);
+
+  setTimeout(()=>{
+    showVacationAnswer();
+  },600);
+}
+
+function showVacationAnswer(){
+
+  addMessage(`
+    <span class="ai-badge">✨ Orientación inteligente</span><br>
+
+    De acuerdo con el
+    <b>Contrato Colectivo de Trabajo de
+    ${escapeHTML(data.empresa)}</b>
+    y con la información que nos proporcionaste,
+    ingresaste el
+    <b>${escapeHTML(data.fechaIngreso)}</b>.<br><br>
+
+    Actualmente cuentas con
+    <b>${data.antiguedad} ${data.antiguedad===1 ? "año" : "años"}
+    de antigüedad</b>.
+
+    <div class="highlight">
+      🏖️ Por tu antigüedad,
+      te corresponden <b>20 días de vacaciones</b>.
+    </div>
+
+    ¿Tu duda quedó resuelta?
+  `);
+
+  addOptions([
+    "✅ Sí, quedó resuelta",
+    "💬 Tengo otra duda",
+    "🤝 Quiero que CATEM revise mi caso"
+  ],vacationResolution);
+}
+
+function vacationResolution(choice){
+
+  if(choice.startsWith("✅")){
+
+    setTimeout(()=>{
+
+      addMessage(`
+        ✅ <b>Consulta resuelta.</b><br><br>
+
+        Nos da gusto haberte podido orientar. 🤝<br><br>
+
+        Si posteriormente necesitas apoyo con algún
+        tema relacionado con tu trabajo,
+        el <b>Centro de Atención CATEM Aguascalientes</b>
+        está para ayudarte.
+      `);
+
+    },350);
+
+    return;
+  }
+
+  if(choice.startsWith("💬")){
+
+    setTimeout(()=>{
+
+      addMessage(`
+        💬 Claro. Cuéntame cuál es tu otra duda
+        relacionada con tus vacaciones.
+      `);
+
+      enableInput(
+        "Escribe tu duda...",
+        receiveAdditionalVacationQuestion
+      );
+
+    },300);
+
+    return;
+  }
+
+  if(choice.startsWith("🤝")){
+
+    setTimeout(()=>{
+      requestName();
+    },300);
+  }
+}
+
+function receiveAdditionalVacationQuestion(value){
+
+  /*
+  En esta versión todavía no conectamos
+  OpenAI realmente.
+
+  Simulamos que la IA reconoce que la nueva
+  pregunta necesita revisión humana.
+  */
+
+  setTimeout(()=>{
+
+    addMessage(`
+      🤖 Gracias por explicarlo.<br><br>
+
+      Para asegurar que recibas una orientación correcta,
+      esta consulta requiere que
+      <b>CATEM revise tu caso</b>.<br><br>
+
+      Vamos a registrar tus datos para darle seguimiento. 🤝
+    `);
+
+    setTimeout(()=>{
+      requestName();
+    },500);
+
+  },500);
+}
+
+/* FECHAS */
+
+function parseSpanishDate(text){
+
+  let clean=text
+    .toLowerCase()
+    .trim()
+    .replace(/,/g,"")
+    .replace(/\s+/g," ");
+
+  /*
+  DD/MM/YYYY
+  DD-MM-YYYY
+  */
+
+  let numeric=clean.match(
+    /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/
+  );
+
+  if(numeric){
+
+    const day=parseInt(numeric[1]);
+    const month=parseInt(numeric[2])-1;
+    const year=parseInt(numeric[3]);
+
+    const date=new Date(year,month,day);
+
+    if(
+      date.getFullYear()===year &&
+      date.getMonth()===month &&
+      date.getDate()===day
+    ){
+      return date;
+    }
+
+    return null;
+  }
+
+  const months={
+    "enero":0,
+    "febrero":1,
+    "marzo":2,
+    "abril":3,
+    "mayo":4,
+    "junio":5,
+    "julio":6,
+    "agosto":7,
+    "septiembre":8,
+    "setiembre":8,
+    "octubre":9,
+    "noviembre":10,
+    "diciembre":11
+  };
+
+  /*
+  Ejemplo:
+  22 de abril de 2020
+  */
+
+  const written=clean.match(
+    /^(\d{1,2})\s+(?:de\s+)?([a-záéíóúñ]+)\s+(?:de\s+|del\s+)?(\d{4})$/
+  );
+
+  if(!written){
+    return null;
+  }
+
+  const day=parseInt(written[1]);
+  const monthName=written[2];
+  const year=parseInt(written[3]);
+
+  if(months[monthName]===undefined){
+    return null;
+  }
+
+  const month=months[monthName];
+
+  const date=new Date(year,month,day);
+
+  if(
+    date.getFullYear()!==year ||
+    date.getMonth()!==month ||
+    date.getDate()!==day
+  ){
+    return null;
+  }
+
+  return date;
+}
+
+function calculateYears(start,end){
+
+  let years=end.getFullYear()-start.getFullYear();
+
+  const anniversary=new Date(
+    end.getFullYear(),
+    start.getMonth(),
+    start.getDate()
+  );
+
+  if(end<anniversary){
+    years--;
+  }
+
+  return years;
+}
+
+function formatDate(date){
+
+  return date.toLocaleDateString(
+    "es-MX",
+    {
+      day:"numeric",
+      month:"long",
+      year:"numeric"
+    }
+  );
+}
+
+/* ========================================
+   FLUJO NORMAL DE REGISTRO
+======================================== */
+
+function requestName(){
+
+  addMessage(`
+    🤝 <b>Gracias por contarnos lo sucedido.</b><br><br>
+
+    Para poder registrar tu caso y darle seguimiento,
+    necesitamos algunos datos.<br><br>
+
+    👤 <b>¿Cuál es tu nombre completo?</b>
+  `);
+
+  enableInput(
+    "Escribe tu nombre completo...",
+    receiveName
+  );
 }
 
 function receiveName(value){
+
   data.nombre=value;
 
   setTimeout(()=>{
+
     addMessage(`
       Gracias, <b>${escapeHTML(firstName(value))}</b>. 🤝<br><br>
+
       🪪 <b>¿Cuál es tu número de empleado?</b>
     `);
 
-    enableInput("Número de empleado...",receiveEmployeeNumber);
-  },350);
+    enableInput(
+      "Número de empleado...",
+      receiveEmployeeNumber
+    );
+
+  },300);
 }
 
 function receiveEmployeeNumber(value){
+
   data.empleado=value;
 
   setTimeout(()=>{
+
     addMessage(`
-      📎 <b>¿Tienes alguna evidencia o documento relacionado con esta situación?</b><br><br>
-      Puede ser una fotografía, captura de pantalla, recibo,
-      documento o archivo relacionado con tu caso.
+      📎 <b>¿Tienes alguna evidencia o documento
+      relacionado con esta situación?</b><br><br>
+
+      Puede ser una fotografía, captura de pantalla,
+      recibo, documento o archivo relacionado con tu caso.
     `);
 
     addOptions([
       "📎 Sí, tengo evidencia",
       "No tengo evidencia"
     ],evidenceChoice);
-  },350);
+
+  },300);
 }
 
+/* EVIDENCIA */
+
 function evidenceChoice(choice){
+
   if(choice.startsWith("📎")){
     showUpload();
   }else{
     data.evidencia=[];
-    setTimeout(showSummary,350);
+    setTimeout(showSummary,300);
   }
 }
 
 function showUpload(){
+
   addMessage(`
     📎 <b>Adjunta tu evidencia.</b><br><br>
+
     Puedes seleccionar una o varias fotografías,
     capturas o documentos.
   `);
@@ -653,12 +1203,14 @@ function showUpload(){
   box.className="upload-box";
 
   const fileInput=document.createElement("input");
+
   fileInput.type="file";
   fileInput.multiple=true;
   fileInput.accept="image/*,.pdf,.doc,.docx";
   fileInput.style.display="none";
 
   const uploadButton=document.createElement("button");
+
   uploadButton.className="upload-button";
   uploadButton.textContent="📎 Seleccionar archivo(s)";
 
@@ -666,6 +1218,7 @@ function showUpload(){
   fileList.className="file-list";
 
   const continueButton=document.createElement("button");
+
   continueButton.className="continue-button";
   continueButton.textContent="Continuar";
   continueButton.style.display="none";
@@ -675,14 +1228,20 @@ function showUpload(){
   };
 
   fileInput.onchange=()=>{
-    data.evidencia=Array.from(fileInput.files).map(file=>file.name);
+
+    data.evidencia=
+      Array.from(fileInput.files)
+      .map(file=>file.name);
 
     fileList.innerHTML="";
 
     data.evidencia.forEach(name=>{
+
       const item=document.createElement("div");
+
       item.className="file-item";
       item.textContent="✅ "+name;
+
       fileList.appendChild(item);
     });
 
@@ -692,6 +1251,7 @@ function showUpload(){
   };
 
   continueButton.onclick=()=>{
+
     box.remove();
 
     addMessage(
@@ -699,7 +1259,7 @@ function showUpload(){
       "user"
     );
 
-    setTimeout(showSummary,350);
+    setTimeout(showSummary,300);
   };
 
   box.appendChild(fileInput);
@@ -708,10 +1268,14 @@ function showUpload(){
   box.appendChild(continueButton);
 
   chat.appendChild(box);
+
   scrollDown();
 }
 
+/* RESUMEN */
+
 function showSummary(){
+
   const evidenceText=
     data.evidencia.length
     ? `${data.evidencia.length} archivo(s) adjunto(s)`
@@ -721,15 +1285,28 @@ function showSummary(){
     📋 <b>Revisa la información de tu reporte</b><br><br>
 
     <div class="summary">
-    🏭 <b>Empresa:</b> ${escapeHTML(data.empresa)}<br>
-    📌 <b>Tema:</b> ${escapeHTML(data.tema)}<br>
-    🔹 <b>Situación:</b> ${escapeHTML(data.subtema)}<br>
-    👤 <b>Nombre:</b> ${escapeHTML(data.nombre)}<br>
-    🪪 <b>No. empleado:</b> ${escapeHTML(data.empleado)}<br>
-    📎 <b>Evidencia:</b> ${escapeHTML(evidenceText)}<br><br>
+
+    🏭 <b>Empresa:</b>
+    ${escapeHTML(data.empresa)}<br>
+
+    📌 <b>Tema:</b>
+    ${escapeHTML(data.tema)}<br>
+
+    🔹 <b>Situación:</b>
+    ${escapeHTML(data.subtema)}<br>
+
+    👤 <b>Nombre:</b>
+    ${escapeHTML(data.nombre)}<br>
+
+    🪪 <b>No. empleado:</b>
+    ${escapeHTML(data.empleado)}<br>
+
+    📎 <b>Evidencia:</b>
+    ${escapeHTML(evidenceText)}<br><br>
 
     📝 <b>Descripción:</b><br>
     ${escapeHTML(data.descripcion)}
+
     </div><br>
 
     <b>¿La información es correcta?</b>
@@ -742,6 +1319,7 @@ function showSummary(){
 }
 
 function confirmSummary(choice){
+
   if(choice.startsWith("✅")){
     registerCase();
   }else{
@@ -749,7 +1327,10 @@ function confirmSummary(choice){
   }
 }
 
+/* CORRECCIONES */
+
 function correctionMenu(){
+
   addMessage(`
     ✏️ <b>¿Qué información deseas corregir?</b>
   `);
@@ -767,134 +1348,183 @@ function correctionMenu(){
 function handleCorrection(choice){
 
   if(choice==="Descripción"){
-    addMessage("📝 Escribe nuevamente la descripción de tu situación.");
-    enableInput("Nueva descripción...",value=>{
-      data.descripcion=value;
-      showSummary();
-    });
+
+    addMessage(
+      "📝 Escribe nuevamente la descripción de tu situación."
+    );
+
+    enableInput(
+      "Nueva descripción...",
+      value=>{
+        data.descripcion=value;
+        showSummary();
+      }
+    );
+
     return;
   }
 
   if(choice==="Nombre"){
-    addMessage("👤 Escribe nuevamente tu nombre completo.");
-    enableInput("Nombre completo...",value=>{
-      data.nombre=value;
-      showSummary();
-    });
+
+    addMessage(
+      "👤 Escribe nuevamente tu nombre completo."
+    );
+
+    enableInput(
+      "Nombre completo...",
+      value=>{
+        data.nombre=value;
+        showSummary();
+      }
+    );
+
     return;
   }
 
   if(choice==="Número de empleado"){
-    addMessage("🪪 Escribe nuevamente tu número de empleado.");
-    enableInput("Número de empleado...",value=>{
-      data.empleado=value;
-      showSummary();
-    });
+
+    addMessage(
+      "🪪 Escribe nuevamente tu número de empleado."
+    );
+
+    enableInput(
+      "Número de empleado...",
+      value=>{
+        data.empleado=value;
+        showSummary();
+      }
+    );
+
     return;
   }
 
   if(choice==="Empresa"){
-    addMessage("🏭 Selecciona nuevamente tu empresa.");
-    addOptions(companies,value=>{
-      data.empresa=value;
-      showSummary();
-    });
+
+    addMessage(
+      "🏭 Selecciona nuevamente tu empresa."
+    );
+
+    addSelector(
+      companies,
+      "🏭 Seleccionar empresa",
+      value=>{
+        data.empresa=value;
+        showSummary();
+      }
+    );
+
     return;
   }
 
   if(choice==="Tema o situación"){
-    addMessage("📋 Selecciona nuevamente el tema.");
-    addOptions(topics,value=>{
-      data.tema=value;
 
-      if(value==="📝 Otro tema"){
-        data.subtema="Otro tema";
-        showSummary();
-      }else{
-        addMessage(`
-          <b>${value}</b><br><br>
-          Selecciona nuevamente la situación.
-        `);
+    addMessage(
+      "📋 Selecciona nuevamente el tema."
+    );
 
-        addOptions(subtopics[value],sub=>{
-          data.subtema=sub;
+    addSelector(
+      topics,
+      "📋 Seleccionar tema",
+      value=>{
+
+        data.tema=value;
+
+        if(value==="📝 Otro tema"){
+
+          data.subtema="Otro tema";
           showSummary();
-        });
+
+        }else{
+
+          addMessage(`
+            <b>${escapeHTML(value)}</b><br><br>
+            Selecciona nuevamente la situación.
+          `);
+
+          addOptions(
+            subtopics[value],
+            sub=>{
+              data.subtema=sub;
+              showSummary();
+            }
+          );
+        }
       }
-    });
+    );
+
     return;
   }
 
   if(choice==="Evidencia"){
+
     data.evidencia=[];
 
     addMessage(`
-      📎 Selecciona nuevamente si deseas adjuntar evidencia.
+      📎 Selecciona nuevamente si deseas
+      adjuntar evidencia.
     `);
 
     addOptions([
       "📎 Sí, adjuntar evidencia",
       "Continuar sin evidencia"
     ],value=>{
+
       if(value.startsWith("📎")){
         showUpload();
       }else{
         showSummary();
       }
+
     });
   }
 }
 
+/* FOLIO */
+
 function registerCase(){
+
   data.folio=generateFolio();
 
   setTimeout(()=>{
+
     addMessage(`
       🎫 <b>¡Listo! Tu reporte ha sido registrado.</b><br><br>
 
       Tu folio de seguimiento es:
 
-      <div class="folio">${escapeHTML(data.folio)}</div>
+      <div class="folio">
+        ${escapeHTML(data.folio)}
+      </div>
 
       Conserva este folio para identificar tu reporte.<br><br>
 
-      Tu caso será canalizado para su atención y
-      podrás recibir seguimiento por este mismo medio. 🤝<br><br>
+      Tu caso será canalizado para su atención
+      y podrás recibir seguimiento por este mismo medio. 🤝<br><br>
 
       <b>Centro de Atención CATEM Aguascalientes</b>
     `);
-  },600);
+
+  },500);
 }
 
 function generateFolio(){
-  const code=companyCodes[data.empresa] || "CATEM";
-  const year=new Date().getFullYear();
 
-  /*
-    DEMO:
-    Generamos un consecutivo visual aleatorio.
-    Cuando conectemos la base de datos,
-    este número será sustituido por el consecutivo real.
-  */
-  const number=Math.floor(Math.random()*9000)+1;
+  const code=
+    companyCodes[data.empresa] || "CATEM";
+
+  const year=
+    new Date().getFullYear();
+
+  const number=
+    Math.floor(Math.random()*9000)+1;
 
   return `${code}-${year}-${String(number).padStart(4,"0")}`;
 }
 
-function firstName(fullName){
-  return fullName.trim().split(/\s+/)[0] || "";
-}
-
-function escapeHTML(value){
-  return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
+/* ARRANCAR */
 
 start();
+
 </script>
 
 </body>
