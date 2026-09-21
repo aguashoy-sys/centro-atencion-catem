@@ -6,13 +6,11 @@
 <title>Centro de Atención CATEM</title>
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
-  font-family:Arial, Helvetica, sans-serif;
+  font-family:Arial,Helvetica,sans-serif;
   background:#d9dbd5;
   display:flex;
   justify-content:center;
@@ -22,16 +20,13 @@ body{
 .phone{
   width:100%;
   max-width:480px;
-  height:100vh;
+  min-height:100vh;
   background:#efeae2;
   display:flex;
   flex-direction:column;
   position:relative;
-  overflow:hidden;
   box-shadow:0 0 20px rgba(0,0,0,.15);
 }
-
-/* HEADER */
 
 .header{
   background:#075e54;
@@ -41,6 +36,9 @@ body{
   align-items:center;
   gap:10px;
   min-height:68px;
+  position:sticky;
+  top:0;
+  z-index:10;
 }
 
 .logo{
@@ -51,30 +49,17 @@ body{
   background:white;
 }
 
-.header-info{
-  flex:1;
-}
-
-.header-title{
-  font-weight:bold;
-  font-size:17px;
-}
-
-.header-status{
-  font-size:13px;
-  opacity:.9;
-  margin-top:3px;
-}
-
-/* CHAT */
+.header-info{flex:1}
+.header-title{font-weight:bold;font-size:17px}
+.header-status{font-size:13px;opacity:.9;margin-top:3px}
 
 .chat{
   flex:1;
   overflow-y:auto;
-  padding:16px 12px 100px;
+  padding:16px 12px 90px;
   background-color:#efeae2;
   background-image:
-    radial-gradient(circle at 20px 20px, rgba(0,0,0,.025) 1px, transparent 1px);
+    radial-gradient(circle at 20px 20px,rgba(0,0,0,.025) 1px,transparent 1px);
   background-size:28px 28px;
 }
 
@@ -87,17 +72,11 @@ body{
   font-size:15px;
   box-shadow:0 1px 1px rgba(0,0,0,.08);
   animation:fadeIn .25s ease;
+  word-wrap:break-word;
 }
 
-.bot{
-  background:white;
-  align-self:flex-start;
-}
-
-.user{
-  background:#d9fdd3;
-  margin-left:auto;
-}
+.bot{background:white}
+.user{background:#d9fdd3;margin-left:auto}
 
 .time{
   display:block;
@@ -107,11 +86,7 @@ body{
   margin-top:5px;
 }
 
-/* OPTIONS */
-
-.options{
-  margin:8px 0 16px;
-}
+.options{margin:8px 0 16px}
 
 .option{
   background:white;
@@ -124,16 +99,9 @@ body{
   font-size:14px;
   cursor:pointer;
   box-shadow:0 1px 2px rgba(0,0,0,.10);
-  transition:.15s;
 }
 
-.option:hover{
-  background:#f6f6f6;
-}
-
-.option:active{
-  transform:scale(.99);
-}
+.option:active{transform:scale(.99)}
 
 .num{
   color:#777;
@@ -141,25 +109,23 @@ body{
   margin-right:7px;
 }
 
-/* INPUT */
-
 .input-area{
-  position:absolute;
+  position:sticky;
   bottom:0;
-  left:0;
-  right:0;
   padding:8px;
   background:#f0f2f5;
   display:flex;
   gap:7px;
+  z-index:10;
 }
 
 .input-area input{
   flex:1;
+  min-width:0;
   border:none;
   border-radius:22px;
   padding:12px 15px;
-  font-size:15px;
+  font-size:16px;
   outline:none;
   background:white;
 }
@@ -167,6 +133,7 @@ body{
 .send{
   width:44px;
   height:44px;
+  flex:0 0 44px;
   border:none;
   border-radius:50%;
   background:#00a884;
@@ -175,14 +142,71 @@ body{
   cursor:pointer;
 }
 
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(5px);}
-  to{opacity:1; transform:translateY(0);}
+.send:disabled{
+  opacity:.45;
+  cursor:default;
 }
 
-.small{
-  color:#666;
-  font-size:13px;
+.upload-box{
+  background:white;
+  border-radius:8px;
+  padding:14px;
+  margin:8px 0 16px;
+  box-shadow:0 1px 2px rgba(0,0,0,.10);
+}
+
+.upload-button{
+  width:100%;
+  border:1px solid #00a884;
+  background:white;
+  color:#007b68;
+  border-radius:8px;
+  padding:12px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.file-list{
+  margin-top:12px;
+  font-size:14px;
+}
+
+.file-item{
+  padding:8px;
+  background:#f4f4f4;
+  border-radius:6px;
+  margin-top:6px;
+}
+
+.continue-button{
+  margin-top:12px;
+  width:100%;
+  border:none;
+  background:#00a884;
+  color:white;
+  border-radius:8px;
+  padding:12px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.summary{
+  line-height:1.6;
+}
+
+.folio{
+  font-size:21px;
+  font-weight:bold;
+  text-align:center;
+  margin:12px 0;
+  color:#075e54;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(5px)}
+  to{opacity:1;transform:translateY(0)}
 }
 </style>
 </head>
@@ -192,7 +216,7 @@ body{
 <div class="phone">
 
   <div class="header">
-    <img src="logo.png" class="logo">
+    <img src="logo.png" class="logo" alt="CATEM">
     <div class="header-info">
       <div class="header-title">Centro de Atención CATEM</div>
       <div class="header-status">en línea</div>
@@ -203,48 +227,53 @@ body{
   <div class="chat" id="chat"></div>
 
   <div class="input-area">
-    <input
-      id="messageInput"
-      type="text"
-      placeholder="Escribe un mensaje..."
-      disabled
-    >
+    <input id="messageInput"
+           type="text"
+           placeholder="Escribe un mensaje..."
+           disabled>
     <button class="send" id="sendButton" disabled>➤</button>
   </div>
 
 </div>
 
 <script>
+const chat=document.getElementById("chat");
+const input=document.getElementById("messageInput");
+const sendButton=document.getElementById("sendButton");
 
-const chat = document.getElementById("chat");
-const input = document.getElementById("messageInput");
-const sendButton = document.getElementById("sendButton");
+let currentInputAction=null;
 
-let employeeData = {
+let data={
   empresa:"",
   tema:"",
   subtema:"",
-  descripcion:""
+  descripcion:"",
+  nombre:"",
+  empleado:"",
+  evidencia:[],
+  folio:""
 };
 
-const companies = [
-  "Nissan Powertrain",
-  "Nissan Vehículos",
-  "Nissan Planta A2",
-  "JATCO Planta 1",
-  "JATCO Planta 2",
-  "Mazda",
-  "BOSCH",
-  "Suncall",
-  "Riken",
-  "Minth",
-  "Tokaikogyo",
-  "APRC",
-  "Topre",
-  "Orotex"
-];
+const companyCodes={
+  "Nissan Powertrain":"NPT",
+  "Nissan Vehículos":"NV",
+  "Nissan Planta A2":"NA2",
+  "JATCO Planta 1":"J1",
+  "JATCO Planta 2":"J2",
+  "Mazda":"MZ",
+  "BOSCH":"BO",
+  "Suncall":"SC",
+  "Riken":"RK",
+  "Minth":"MI",
+  "Tokaikogyo":"TK",
+  "APRC":"APRC",
+  "Topre":"TP",
+  "Orotex":"OT"
+};
 
-const topics = [
+const companies=Object.keys(companyCodes);
+
+const topics=[
   "💰 Pago y prestaciones",
   "🏖️ Vacaciones y permisos",
   "⏰ Horarios y horas extras",
@@ -260,7 +289,7 @@ const topics = [
   "📝 Otro tema"
 ];
 
-const subtopics = {
+const subtopics={
 
 "💰 Pago y prestaciones":[
 "Pago incompleto o incorrecto de nómina",
@@ -408,10 +437,9 @@ const subtopics = {
 "Quiero saber si existe algún beneficio para una necesidad específica",
 "Otro tema relacionado con beneficios CATEM"
 ]
-
 };
 
-function time(){
+function getTime(){
   return new Date().toLocaleTimeString("es-MX",{
     hour:"2-digit",
     minute:"2-digit"
@@ -419,180 +447,454 @@ function time(){
 }
 
 function addMessage(text,type="bot"){
-
   const div=document.createElement("div");
   div.className="message "+type;
-
-  div.innerHTML=text+
-  `<span class="time">${time()}</span>`;
-
+  div.innerHTML=text+`<span class="time">${getTime()}</span>`;
   chat.appendChild(div);
-  chat.scrollTop=chat.scrollHeight;
+  scrollDown();
+}
+
+function scrollDown(){
+  setTimeout(()=>{
+    chat.scrollTop=chat.scrollHeight;
+  },50);
 }
 
 function addOptions(items,callback){
-
   const container=document.createElement("div");
   container.className="options";
 
   items.forEach((item,index)=>{
-
     const button=document.createElement("button");
     button.className="option";
-
     button.innerHTML=
-    `<span class="num">◾ ${index+1}.</span> ${item}`;
+      `<span class="num">◾ ${index+1}.</span>${item}`;
 
     button.onclick=()=>{
-
       container.remove();
       addMessage(item,"user");
       callback(item);
-
     };
 
     container.appendChild(button);
-
   });
 
   chat.appendChild(container);
-  chat.scrollTop=chat.scrollHeight;
+  scrollDown();
 }
 
+function enableInput(placeholder,action){
+  currentInputAction=action;
+  input.placeholder=placeholder;
+  input.disabled=false;
+  sendButton.disabled=false;
+  input.focus();
+}
+
+function disableInput(){
+  currentInputAction=null;
+  input.value="";
+  input.disabled=true;
+  sendButton.disabled=true;
+  input.placeholder="Escribe un mensaje...";
+}
+
+function submitInput(){
+  const value=input.value.trim();
+
+  if(!value || !currentInputAction) return;
+
+  const action=currentInputAction;
+
+  addMessage(value,"user");
+  disableInput();
+
+  action(value);
+}
+
+sendButton.onclick=submitInput;
+
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    submitInput();
+  }
+});
+
 function start(){
-
   addMessage(`
-  👋 ¡Hola! Bienvenido al <b>Centro de Atención CATEM Aguascalientes</b>.<br><br>
-
-  Estamos aquí para <b>escucharte, orientarte y dar seguimiento</b>
-  a cualquier duda o situación relacionada con tu trabajo. 🤝<br><br>
-
-  Para comenzar, dinos:<br><br>
-
-  🏭 <b>¿En qué empresa trabajas?</b><br><br>
-
-  Selecciona tu empresa de la lista 👇
+    👋 ¡Hola! Bienvenido al <b>Centro de Atención CATEM Aguascalientes</b>.<br><br>
+    Estamos aquí para <b>escucharte, orientarte y dar seguimiento</b>
+    a cualquier duda o situación relacionada con tu trabajo. 🤝<br><br>
+    Para comenzar, dinos:<br><br>
+    🏭 <b>¿En qué empresa trabajas?</b><br><br>
+    Selecciona tu empresa de la lista 👇
   `);
 
   setTimeout(()=>{
-
     addOptions(companies,selectCompany);
-
-  },500);
-
+  },400);
 }
 
 function selectCompany(company){
-
-  employeeData.empresa=company;
+  data.empresa=company;
 
   setTimeout(()=>{
-
     addMessage(`
-    🤝 Gracias.<br><br>
-
-    📋 <b>¿Sobre qué tema necesitas apoyo?</b><br><br>
-
-    Selecciona una opción 👇
+      🤝 Gracias.<br><br>
+      📋 <b>¿Sobre qué tema necesitas apoyo?</b><br><br>
+      Selecciona una opción 👇
     `);
 
     addOptions(topics,selectTopic);
-
-  },400);
-
+  },350);
 }
 
 function selectTopic(topic){
-
-  employeeData.tema=topic;
+  data.tema=topic;
 
   if(topic==="📝 Otro tema"){
+    data.subtema="Otro tema";
     requestDescription();
     return;
   }
 
-  const list=subtopics[topic];
-
   setTimeout(()=>{
-
     addMessage(`
-    <b>${topic}</b><br><br>
-    ¿Cuál de estas situaciones describe mejor lo que necesitas?
+      <b>${topic}</b><br><br>
+      ¿Cuál de estas situaciones describe mejor lo que necesitas?
     `);
 
-    addOptions(list,selectSubtopic);
-
-  },400);
-
+    addOptions(subtopics[topic],selectSubtopic);
+  },350);
 }
 
 function selectSubtopic(subtopic){
-
-  employeeData.subtema=subtopic;
+  data.subtema=subtopic;
 
   setTimeout(()=>{
     requestDescription();
-  },400);
-
+  },350);
 }
 
 function requestDescription(){
-
   addMessage(`
-  📝 <b>Ahora cuéntanos brevemente qué está sucediendo.</b><br><br>
-
-  Describe la situación con tus propias palabras.
-  No te preocupes por utilizar términos técnicos; escribe lo que pasó
-  de la manera más sencilla posible.<br><br>
-
-  💡 Entre más información nos compartas, mejor podremos orientarte.
+    📝 <b>Ahora cuéntanos brevemente qué está sucediendo.</b><br><br>
+    Describe la situación con tus propias palabras.
+    No te preocupes por utilizar términos técnicos; escribe lo que pasó
+    de la manera más sencilla posible.<br><br>
+    💡 Entre más información nos compartas, mejor podremos orientarte.
   `);
 
-  input.disabled=false;
-  sendButton.disabled=false;
-  input.focus();
-
+  enableInput("Describe aquí tu situación...",receiveDescription);
 }
 
-function sendDescription(){
-
-  const value=input.value.trim();
-
-  if(!value) return;
-
-  employeeData.descripcion=value;
-
-  addMessage(value,"user");
-
-  input.value="";
-  input.disabled=true;
-  sendButton.disabled=true;
+function receiveDescription(value){
+  data.descripcion=value;
 
   setTimeout(()=>{
-
     addMessage(`
-    🤖 <b>Gracias. Estamos analizando tu situación.</b><br><br>
-
-    En la versión completa del Centro de Atención,
-    la inteligencia artificial analizará aquí la información
-    para determinar cómo podemos orientarte y si es necesario
-    canalizar tu caso para atención.
+      🤝 <b>Gracias por contarnos lo sucedido.</b><br><br>
+      Para poder registrar tu caso y darle seguimiento,
+      necesitamos algunos datos.<br><br>
+      👤 <b>¿Cuál es tu nombre completo?</b>
     `);
 
-  },700);
-
+    enableInput("Escribe tu nombre completo...",receiveName);
+  },450);
 }
 
-sendButton.onclick=sendDescription;
+function receiveName(value){
+  data.nombre=value;
 
-input.addEventListener("keydown",function(e){
-  if(e.key==="Enter"){
-    sendDescription();
+  setTimeout(()=>{
+    addMessage(`
+      Gracias, <b>${escapeHTML(firstName(value))}</b>. 🤝<br><br>
+      🪪 <b>¿Cuál es tu número de empleado?</b>
+    `);
+
+    enableInput("Número de empleado...",receiveEmployeeNumber);
+  },350);
+}
+
+function receiveEmployeeNumber(value){
+  data.empleado=value;
+
+  setTimeout(()=>{
+    addMessage(`
+      📎 <b>¿Tienes alguna evidencia o documento relacionado con esta situación?</b><br><br>
+      Puede ser una fotografía, captura de pantalla, recibo,
+      documento o archivo relacionado con tu caso.
+    `);
+
+    addOptions([
+      "📎 Sí, tengo evidencia",
+      "No tengo evidencia"
+    ],evidenceChoice);
+  },350);
+}
+
+function evidenceChoice(choice){
+  if(choice.startsWith("📎")){
+    showUpload();
+  }else{
+    data.evidencia=[];
+    setTimeout(showSummary,350);
   }
-});
+}
+
+function showUpload(){
+  addMessage(`
+    📎 <b>Adjunta tu evidencia.</b><br><br>
+    Puedes seleccionar una o varias fotografías,
+    capturas o documentos.
+  `);
+
+  const box=document.createElement("div");
+  box.className="upload-box";
+
+  const fileInput=document.createElement("input");
+  fileInput.type="file";
+  fileInput.multiple=true;
+  fileInput.accept="image/*,.pdf,.doc,.docx";
+  fileInput.style.display="none";
+
+  const uploadButton=document.createElement("button");
+  uploadButton.className="upload-button";
+  uploadButton.textContent="📎 Seleccionar archivo(s)";
+
+  const fileList=document.createElement("div");
+  fileList.className="file-list";
+
+  const continueButton=document.createElement("button");
+  continueButton.className="continue-button";
+  continueButton.textContent="Continuar";
+  continueButton.style.display="none";
+
+  uploadButton.onclick=()=>{
+    fileInput.click();
+  };
+
+  fileInput.onchange=()=>{
+    data.evidencia=Array.from(fileInput.files).map(file=>file.name);
+
+    fileList.innerHTML="";
+
+    data.evidencia.forEach(name=>{
+      const item=document.createElement("div");
+      item.className="file-item";
+      item.textContent="✅ "+name;
+      fileList.appendChild(item);
+    });
+
+    if(data.evidencia.length){
+      continueButton.style.display="block";
+    }
+  };
+
+  continueButton.onclick=()=>{
+    box.remove();
+
+    addMessage(
+      `📎 ${data.evidencia.length} archivo(s) adjunto(s)`,
+      "user"
+    );
+
+    setTimeout(showSummary,350);
+  };
+
+  box.appendChild(fileInput);
+  box.appendChild(uploadButton);
+  box.appendChild(fileList);
+  box.appendChild(continueButton);
+
+  chat.appendChild(box);
+  scrollDown();
+}
+
+function showSummary(){
+  const evidenceText=
+    data.evidencia.length
+    ? `${data.evidencia.length} archivo(s) adjunto(s)`
+    : "Sin evidencia adjunta";
+
+  addMessage(`
+    📋 <b>Revisa la información de tu reporte</b><br><br>
+
+    <div class="summary">
+    🏭 <b>Empresa:</b> ${escapeHTML(data.empresa)}<br>
+    📌 <b>Tema:</b> ${escapeHTML(data.tema)}<br>
+    🔹 <b>Situación:</b> ${escapeHTML(data.subtema)}<br>
+    👤 <b>Nombre:</b> ${escapeHTML(data.nombre)}<br>
+    🪪 <b>No. empleado:</b> ${escapeHTML(data.empleado)}<br>
+    📎 <b>Evidencia:</b> ${escapeHTML(evidenceText)}<br><br>
+
+    📝 <b>Descripción:</b><br>
+    ${escapeHTML(data.descripcion)}
+    </div><br>
+
+    <b>¿La información es correcta?</b>
+  `);
+
+  addOptions([
+    "✅ Sí, registrar mi caso",
+    "✏️ Quiero corregir información"
+  ],confirmSummary);
+}
+
+function confirmSummary(choice){
+  if(choice.startsWith("✅")){
+    registerCase();
+  }else{
+    correctionMenu();
+  }
+}
+
+function correctionMenu(){
+  addMessage(`
+    ✏️ <b>¿Qué información deseas corregir?</b>
+  `);
+
+  addOptions([
+    "Empresa",
+    "Tema o situación",
+    "Descripción",
+    "Nombre",
+    "Número de empleado",
+    "Evidencia"
+  ],handleCorrection);
+}
+
+function handleCorrection(choice){
+
+  if(choice==="Descripción"){
+    addMessage("📝 Escribe nuevamente la descripción de tu situación.");
+    enableInput("Nueva descripción...",value=>{
+      data.descripcion=value;
+      showSummary();
+    });
+    return;
+  }
+
+  if(choice==="Nombre"){
+    addMessage("👤 Escribe nuevamente tu nombre completo.");
+    enableInput("Nombre completo...",value=>{
+      data.nombre=value;
+      showSummary();
+    });
+    return;
+  }
+
+  if(choice==="Número de empleado"){
+    addMessage("🪪 Escribe nuevamente tu número de empleado.");
+    enableInput("Número de empleado...",value=>{
+      data.empleado=value;
+      showSummary();
+    });
+    return;
+  }
+
+  if(choice==="Empresa"){
+    addMessage("🏭 Selecciona nuevamente tu empresa.");
+    addOptions(companies,value=>{
+      data.empresa=value;
+      showSummary();
+    });
+    return;
+  }
+
+  if(choice==="Tema o situación"){
+    addMessage("📋 Selecciona nuevamente el tema.");
+    addOptions(topics,value=>{
+      data.tema=value;
+
+      if(value==="📝 Otro tema"){
+        data.subtema="Otro tema";
+        showSummary();
+      }else{
+        addMessage(`
+          <b>${value}</b><br><br>
+          Selecciona nuevamente la situación.
+        `);
+
+        addOptions(subtopics[value],sub=>{
+          data.subtema=sub;
+          showSummary();
+        });
+      }
+    });
+    return;
+  }
+
+  if(choice==="Evidencia"){
+    data.evidencia=[];
+
+    addMessage(`
+      📎 Selecciona nuevamente si deseas adjuntar evidencia.
+    `);
+
+    addOptions([
+      "📎 Sí, adjuntar evidencia",
+      "Continuar sin evidencia"
+    ],value=>{
+      if(value.startsWith("📎")){
+        showUpload();
+      }else{
+        showSummary();
+      }
+    });
+  }
+}
+
+function registerCase(){
+  data.folio=generateFolio();
+
+  setTimeout(()=>{
+    addMessage(`
+      🎫 <b>¡Listo! Tu reporte ha sido registrado.</b><br><br>
+
+      Tu folio de seguimiento es:
+
+      <div class="folio">${escapeHTML(data.folio)}</div>
+
+      Conserva este folio para identificar tu reporte.<br><br>
+
+      Tu caso será canalizado para su atención y
+      podrás recibir seguimiento por este mismo medio. 🤝<br><br>
+
+      <b>Centro de Atención CATEM Aguascalientes</b>
+    `);
+  },600);
+}
+
+function generateFolio(){
+  const code=companyCodes[data.empresa] || "CATEM";
+  const year=new Date().getFullYear();
+
+  /*
+    DEMO:
+    Generamos un consecutivo visual aleatorio.
+    Cuando conectemos la base de datos,
+    este número será sustituido por el consecutivo real.
+  */
+  const number=Math.floor(Math.random()*9000)+1;
+
+  return `${code}-${year}-${String(number).padStart(4,"0")}`;
+}
+
+function firstName(fullName){
+  return fullName.trim().split(/\s+/)[0] || "";
+}
+
+function escapeHTML(value){
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
 
 start();
-
 </script>
 
 </body>
