@@ -96,13 +96,15 @@ body{
   box-shadow:0 1px 2px rgba(0,0,0,.10);
 }
 
+.option:active{transform:scale(.99)}
+
 .num{
   color:#777;
   font-weight:bold;
   margin-right:7px;
 }
 
-/* SELECTORES COMPACTOS */
+/* SELECTORES */
 
 .selector-box{
   background:white;
@@ -173,6 +175,7 @@ body{
 
 .send:disabled{
   opacity:.45;
+  cursor:default;
 }
 
 /* ARCHIVOS */
@@ -250,6 +253,29 @@ body{
   border-radius:5px;
   margin:10px 0;
 }
+
+.internal{
+  background:#f7f7f7;
+  border-left:4px solid #777;
+  padding:12px;
+  border-radius:6px;
+  margin-top:10px;
+}
+
+.status-step{
+  padding:8px 0;
+}
+
+.demo-label{
+  display:inline-block;
+  background:#ececec;
+  color:#555;
+  border-radius:12px;
+  padding:4px 8px;
+  font-size:11px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
 </style>
 </head>
 
@@ -259,10 +285,12 @@ body{
 
   <div class="header">
     <img src="logo.png" class="logo" alt="CATEM">
+
     <div class="header-info">
       <div class="header-title">Centro de Atención CATEM</div>
       <div class="header-status">en línea</div>
     </div>
+
     <div>⋮</div>
   </div>
 
@@ -275,12 +303,21 @@ body{
       placeholder="Escribe un mensaje..."
       disabled
     >
-    <button class="send" id="sendButton" disabled>➤</button>
+
+    <button
+      class="send"
+      id="sendButton"
+      disabled
+    >➤</button>
   </div>
 
 </div>
 
 <script>
+
+/* ==========================
+   VARIABLES GENERALES
+========================== */
 
 const chat=document.getElementById("chat");
 const input=document.getElementById("messageInput");
@@ -298,8 +335,16 @@ let data={
   evidencia:[],
   fechaIngreso:"",
   antiguedad:0,
+  fechaHorasExtra:"",
+  horasExtra:"",
+  reportePrevio:"",
   folio:""
 };
+
+
+/* ==========================
+   EMPRESAS
+========================== */
 
 const companyCodes={
   "Nissan Powertrain":"NPT",
@@ -320,6 +365,11 @@ const companyCodes={
 
 const companies=Object.keys(companyCodes);
 
+
+/* ==========================
+   TEMAS
+========================== */
+
 const topics=[
   "💰 Pago y prestaciones",
   "🏖️ Vacaciones y permisos",
@@ -335,6 +385,11 @@ const topics=[
   "🤝 Beneficios CATEM",
   "📝 Otro tema"
 ];
+
+
+/* ==========================
+   SUBTEMAS
+========================== */
 
 const subtopics={
 
@@ -484,24 +539,36 @@ const subtopics={
 "Quiero saber si existe algún beneficio para una necesidad específica",
 "Otro tema relacionado con beneficios CATEM"
 ]
+
 };
 
-/* UTILIDADES */
+
+/* ==========================
+   UTILIDADES
+========================== */
 
 function getTime(){
-  return new Date().toLocaleTimeString("es-MX",{
-    hour:"2-digit",
-    minute:"2-digit"
-  });
+
+  return new Date().toLocaleTimeString(
+    "es-MX",
+    {
+      hour:"2-digit",
+      minute:"2-digit"
+    }
+  );
 }
 
+
 function scrollDown(){
+
   setTimeout(()=>{
     chat.scrollTop=chat.scrollHeight;
   },50);
 }
 
+
 function escapeHTML(value){
+
   return String(value)
     .replaceAll("&","&amp;")
     .replaceAll("<","&lt;")
@@ -510,12 +577,17 @@ function escapeHTML(value){
     .replaceAll("'","&#039;");
 }
 
+
 function firstName(name){
+
   return name.trim().split(/\s+/)[0] || "";
 }
 
+
 function addMessage(text,type="bot"){
+
   const div=document.createElement("div");
+
   div.className="message "+type;
 
   div.innerHTML=
@@ -523,14 +595,19 @@ function addMessage(text,type="bot"){
     `<span class="time">${getTime()}</span>`;
 
   chat.appendChild(div);
+
   scrollDown();
 }
 
-/* BOTONES */
+
+/* ==========================
+   BOTONES
+========================== */
 
 function addOptions(items,callback){
 
   const container=document.createElement("div");
+
   container.className="options";
 
   items.forEach((item,index)=>{
@@ -558,17 +635,23 @@ function addOptions(items,callback){
   });
 
   chat.appendChild(container);
+
   scrollDown();
 }
 
-/* SELECTOR COMPACTO */
+
+/* ==========================
+   SELECTORES COMPACTOS
+========================== */
 
 function addSelector(items,placeholder,callback){
 
   const box=document.createElement("div");
+
   box.className="selector-box";
 
   const select=document.createElement("select");
+
   select.className="selector";
 
   const placeholderOption=document.createElement("option");
@@ -617,10 +700,14 @@ function addSelector(items,placeholder,callback){
   box.appendChild(button);
 
   chat.appendChild(box);
+
   scrollDown();
 }
 
-/* INPUT */
+
+/* ==========================
+   CAMPO DE TEXTO
+========================== */
 
 function enableInput(placeholder,action){
 
@@ -633,6 +720,7 @@ function enableInput(placeholder,action){
   input.focus();
 }
 
+
 function disableInput(){
 
   currentInputAction=null;
@@ -643,6 +731,7 @@ function disableInput(){
 
   input.placeholder="Escribe un mensaje...";
 }
+
 
 function submitInput(){
 
@@ -664,16 +753,22 @@ function submitInput(){
   action(value);
 }
 
+
 sendButton.onclick=submitInput;
+
 
 input.addEventListener("keydown",event=>{
 
   if(event.key==="Enter"){
     submitInput();
   }
+
 });
 
-/* INICIO */
+
+/* ==========================
+   INICIO
+========================== */
 
 function start(){
 
@@ -700,6 +795,7 @@ function start(){
   },300);
 }
 
+
 function selectCompany(company){
 
   data.empresa=company;
@@ -721,6 +817,7 @@ function selectCompany(company){
   },300);
 }
 
+
 function selectTopic(topic){
 
   data.tema=topic;
@@ -738,7 +835,9 @@ function selectTopic(topic){
 
     addMessage(`
       <b>${escapeHTML(topic)}</b><br><br>
-      ¿Cuál de estas situaciones describe mejor lo que necesitas?
+
+      ¿Cuál de estas situaciones describe mejor
+      lo que necesitas?
     `);
 
     addOptions(
@@ -749,6 +848,7 @@ function selectTopic(topic){
   },300);
 }
 
+
 function selectSubtopic(subtopic){
 
   data.subtema=subtopic;
@@ -758,7 +858,10 @@ function selectSubtopic(subtopic){
   },300);
 }
 
-/* DESCRIPCIÓN */
+
+/* ==========================
+   DESCRIPCIÓN
+========================== */
 
 function requestDescription(){
 
@@ -779,15 +882,14 @@ function requestDescription(){
   );
 }
 
+
 function receiveDescription(value){
 
   data.descripcion=value;
 
-  /*
-  ==========================================
-  ÚNICA RUTA INTELIGENTE DEL DEMO
-  ==========================================
-  */
+
+  /* RUTA 1:
+     VACACIONES - ORIENTACIÓN INTELIGENTE */
 
   if(
     data.tema==="🏖️ Vacaciones y permisos" &&
@@ -801,24 +903,43 @@ function receiveDescription(value){
     return;
   }
 
-  /*
-  TODAS LAS DEMÁS RUTAS
-  CONTINÚAN COMO ANTES
-  */
+
+  /* RUTA 2:
+     SUNCALL - HORAS EXTRAS */
+
+  if(
+    data.empresa==="Suncall" &&
+    data.tema==="⏰ Horarios y horas extras" &&
+    data.subtema==="No me pagaron horas extras"
+  ){
+
+    setTimeout(()=>{
+      startSuncallOvertime();
+    },450);
+
+    return;
+  }
+
+
+  /* RESTO DE LOS CASOS */
 
   setTimeout(()=>{
     requestName();
   },400);
 }
 
-/* ========================================
-   RUTA INTELIGENTE VACACIONES
-======================================== */
+
+/* =====================================================
+   RUTA 1
+   VACACIONES - ORIENTACIÓN INTELIGENTE
+===================================================== */
 
 function startVacationAI(){
 
   addMessage(`
-    <span class="ai-badge">✨ Orientación inteligente</span><br>
+    <span class="ai-badge">
+      ✨ Orientación inteligente
+    </span><br>
 
     Entiendo. Para poder calcular los días de vacaciones
     que te corresponden necesito conocer tu antigüedad.<br><br>
@@ -827,6 +948,7 @@ function startVacationAI(){
     ${escapeHTML(data.empresa)}?</b><br><br>
 
     Puedes escribirla, por ejemplo:<br>
+
     <b>22 de abril de 2020</b>
   `);
 
@@ -835,6 +957,7 @@ function startVacationAI(){
     receiveStartDate
   );
 }
+
 
 function receiveStartDate(value){
 
@@ -848,7 +971,9 @@ function receiveStartDate(value){
       Intenta escribirla de alguna de estas formas:<br><br>
 
       📅 <b>22 de abril de 2020</b><br>
+
       o<br>
+
       📅 <b>22/04/2020</b>
     `);
 
@@ -880,17 +1005,22 @@ function receiveStartDate(value){
   }
 
   data.fechaIngreso=formatDate(date);
-  data.antiguedad=calculateYears(date,today);
+
+  data.antiguedad=
+    calculateYears(date,today);
 
   setTimeout(()=>{
     showVacationAnswer();
   },600);
 }
 
+
 function showVacationAnswer(){
 
   addMessage(`
-    <span class="ai-badge">✨ Orientación inteligente</span><br>
+    <span class="ai-badge">
+      ✨ Orientación inteligente
+    </span><br>
 
     De acuerdo con el
     <b>Contrato Colectivo de Trabajo de
@@ -900,8 +1030,11 @@ function showVacationAnswer(){
     <b>${escapeHTML(data.fechaIngreso)}</b>.<br><br>
 
     Actualmente cuentas con
-    <b>${data.antiguedad} ${data.antiguedad===1 ? "año" : "años"}
-    de antigüedad</b>.
+    <b>
+      ${data.antiguedad}
+      ${data.antiguedad===1 ? "año" : "años"}
+      de antigüedad
+    </b>.
 
     <div class="highlight">
       🏖️ Por tu antigüedad,
@@ -918,6 +1051,7 @@ function showVacationAnswer(){
   ],vacationResolution);
 }
 
+
 function vacationResolution(choice){
 
   if(choice.startsWith("✅")){
@@ -929,9 +1063,9 @@ function vacationResolution(choice){
 
         Nos da gusto haberte podido orientar. 🤝<br><br>
 
-        Si posteriormente necesitas apoyo con algún
-        tema relacionado con tu trabajo,
-        el <b>Centro de Atención CATEM Aguascalientes</b>
+        Si posteriormente necesitas apoyo con algún tema
+        relacionado con tu trabajo, el
+        <b>Centro de Atención CATEM Aguascalientes</b>
         está para ayudarte.
       `);
 
@@ -939,6 +1073,7 @@ function vacationResolution(choice){
 
     return;
   }
+
 
   if(choice.startsWith("💬")){
 
@@ -959,23 +1094,19 @@ function vacationResolution(choice){
     return;
   }
 
+
   if(choice.startsWith("🤝")){
 
     setTimeout(()=>{
       requestName();
     },300);
+
   }
+
 }
 
+
 function receiveAdditionalVacationQuestion(value){
-
-  /*
-  En esta versión todavía no conectamos
-  OpenAI realmente.
-
-  Simulamos que la IA reconoce que la nueva
-  pregunta necesita revisión humana.
-  */
 
   setTimeout(()=>{
 
@@ -996,7 +1127,103 @@ function receiveAdditionalVacationQuestion(value){
   },500);
 }
 
-/* FECHAS */
+
+/* =====================================================
+   RUTA 2
+   SUNCALL - HORAS EXTRAS
+===================================================== */
+
+function startSuncallOvertime(){
+
+  addMessage(`
+    🤖 Entiendo.<br><br>
+
+    Para que CATEM pueda revisar correctamente
+    el pago de tus horas extras necesitamos
+    algunos datos adicionales.<br><br>
+
+    📅 <b>¿En qué fecha realizaste las horas extras
+    que no fueron pagadas?</b><br><br>
+
+    Puedes escribir, por ejemplo:<br>
+
+    <b>18 de septiembre de 2026</b>
+  `);
+
+  enableInput(
+    "Fecha de las horas extras...",
+    receiveOvertimeDate
+  );
+}
+
+
+function receiveOvertimeDate(value){
+
+  data.fechaHorasExtra=value;
+
+  setTimeout(()=>{
+
+    addMessage(`
+      ⏰ <b>¿Cuántas horas extras trabajaste aproximadamente?</b>
+    `);
+
+    enableInput(
+      "Ej. 5 horas",
+      receiveOvertimeHours
+    );
+
+  },350);
+}
+
+
+function receiveOvertimeHours(value){
+
+  data.horasExtra=value;
+
+  setTimeout(()=>{
+
+    addMessage(`
+      👤 <b>¿Ya habías reportado esta situación anteriormente?</b>
+    `);
+
+    addOptions([
+      "No, es la primera vez que lo reporto",
+      "Sí, con mi supervisor",
+      "Sí, con Recursos Humanos",
+      "Sí, con mi delegado"
+    ],receivePreviousReport);
+
+  },350);
+}
+
+
+function receivePreviousReport(value){
+
+  data.reportePrevio=value;
+
+  setTimeout(()=>{
+
+    addMessage(`
+      🤝 Gracias.<br><br>
+
+      Con esta información podemos registrar
+      mejor tu reporte.<br><br>
+
+      Ahora necesitamos tus datos para poder
+      darle seguimiento.
+    `);
+
+    setTimeout(()=>{
+      requestName();
+    },450);
+
+  },350);
+}
+
+
+/* ==========================
+   FECHAS
+========================== */
 
 function parseSpanishDate(text){
 
@@ -1006,14 +1233,11 @@ function parseSpanishDate(text){
     .replace(/,/g,"")
     .replace(/\s+/g," ");
 
-  /*
-  DD/MM/YYYY
-  DD-MM-YYYY
-  */
 
   let numeric=clean.match(
     /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/
   );
+
 
   if(numeric){
 
@@ -1021,7 +1245,8 @@ function parseSpanishDate(text){
     const month=parseInt(numeric[2])-1;
     const year=parseInt(numeric[3]);
 
-    const date=new Date(year,month,day);
+    const date=
+      new Date(year,month,day);
 
     if(
       date.getFullYear()===year &&
@@ -1033,6 +1258,7 @@ function parseSpanishDate(text){
 
     return null;
   }
+
 
   const months={
     "enero":0,
@@ -1050,30 +1276,32 @@ function parseSpanishDate(text){
     "diciembre":11
   };
 
-  /*
-  Ejemplo:
-  22 de abril de 2020
-  */
 
   const written=clean.match(
     /^(\d{1,2})\s+(?:de\s+)?([a-záéíóúñ]+)\s+(?:de\s+|del\s+)?(\d{4})$/
   );
 
+
   if(!written){
     return null;
   }
+
 
   const day=parseInt(written[1]);
   const monthName=written[2];
   const year=parseInt(written[3]);
 
+
   if(months[monthName]===undefined){
     return null;
   }
 
+
   const month=months[monthName];
 
-  const date=new Date(year,month,day);
+  const date=
+    new Date(year,month,day);
+
 
   if(
     date.getFullYear()!==year ||
@@ -1083,18 +1311,23 @@ function parseSpanishDate(text){
     return null;
   }
 
+
   return date;
 }
 
+
 function calculateYears(start,end){
 
-  let years=end.getFullYear()-start.getFullYear();
+  let years=
+    end.getFullYear()-
+    start.getFullYear();
 
-  const anniversary=new Date(
-    end.getFullYear(),
-    start.getMonth(),
-    start.getDate()
-  );
+  const anniversary=
+    new Date(
+      end.getFullYear(),
+      start.getMonth(),
+      start.getDate()
+    );
 
   if(end<anniversary){
     years--;
@@ -1102,6 +1335,7 @@ function calculateYears(start,end){
 
   return years;
 }
+
 
 function formatDate(date){
 
@@ -1115,9 +1349,10 @@ function formatDate(date){
   );
 }
 
-/* ========================================
-   FLUJO NORMAL DE REGISTRO
-======================================== */
+
+/* =====================================================
+   REGISTRO DEL TRABAJADOR
+===================================================== */
 
 function requestName(){
 
@@ -1136,6 +1371,7 @@ function requestName(){
   );
 }
 
+
 function receiveName(value){
 
   data.nombre=value;
@@ -1143,7 +1379,8 @@ function receiveName(value){
   setTimeout(()=>{
 
     addMessage(`
-      Gracias, <b>${escapeHTML(firstName(value))}</b>. 🤝<br><br>
+      Gracias,
+      <b>${escapeHTML(firstName(value))}</b>. 🤝<br><br>
 
       🪪 <b>¿Cuál es tu número de empleado?</b>
     `);
@@ -1156,6 +1393,7 @@ function receiveName(value){
   },300);
 }
 
+
 function receiveEmployeeNumber(value){
 
   data.empleado=value;
@@ -1166,8 +1404,9 @@ function receiveEmployeeNumber(value){
       📎 <b>¿Tienes alguna evidencia o documento
       relacionado con esta situación?</b><br><br>
 
-      Puede ser una fotografía, captura de pantalla,
-      recibo, documento o archivo relacionado con tu caso.
+      Puede ser una fotografía,
+      captura de pantalla, recibo,
+      documento o archivo relacionado con tu caso.
     `);
 
     addOptions([
@@ -1178,17 +1417,28 @@ function receiveEmployeeNumber(value){
   },300);
 }
 
-/* EVIDENCIA */
+
+/* ==========================
+   EVIDENCIA
+========================== */
 
 function evidenceChoice(choice){
 
   if(choice.startsWith("📎")){
+
     showUpload();
+
   }else{
+
     data.evidencia=[];
-    setTimeout(showSummary,300);
+
+    setTimeout(
+      showSummary,
+      300
+    );
   }
 }
+
 
 function showUpload(){
 
@@ -1199,33 +1449,59 @@ function showUpload(){
     capturas o documentos.
   `);
 
-  const box=document.createElement("div");
+
+  const box=
+    document.createElement("div");
+
   box.className="upload-box";
 
-  const fileInput=document.createElement("input");
+
+  const fileInput=
+    document.createElement("input");
 
   fileInput.type="file";
   fileInput.multiple=true;
-  fileInput.accept="image/*,.pdf,.doc,.docx";
+  fileInput.accept=
+    "image/*,.pdf,.doc,.docx";
+
   fileInput.style.display="none";
 
-  const uploadButton=document.createElement("button");
 
-  uploadButton.className="upload-button";
-  uploadButton.textContent="📎 Seleccionar archivo(s)";
+  const uploadButton=
+    document.createElement("button");
 
-  const fileList=document.createElement("div");
+  uploadButton.className=
+    "upload-button";
+
+  uploadButton.textContent=
+    "📎 Seleccionar archivo(s)";
+
+
+  const fileList=
+    document.createElement("div");
+
   fileList.className="file-list";
 
-  const continueButton=document.createElement("button");
 
-  continueButton.className="continue-button";
-  continueButton.textContent="Continuar";
-  continueButton.style.display="none";
+  const continueButton=
+    document.createElement("button");
+
+  continueButton.className=
+    "continue-button";
+
+  continueButton.textContent=
+    "Continuar";
+
+  continueButton.style.display=
+    "none";
+
 
   uploadButton.onclick=()=>{
+
     fileInput.click();
+
   };
+
 
   fileInput.onchange=()=>{
 
@@ -1233,22 +1509,34 @@ function showUpload(){
       Array.from(fileInput.files)
       .map(file=>file.name);
 
+
     fileList.innerHTML="";
+
 
     data.evidencia.forEach(name=>{
 
-      const item=document.createElement("div");
+      const item=
+        document.createElement("div");
 
       item.className="file-item";
-      item.textContent="✅ "+name;
+
+      item.textContent=
+        "✅ "+name;
 
       fileList.appendChild(item);
+
     });
 
+
     if(data.evidencia.length){
-      continueButton.style.display="block";
+
+      continueButton.style.display=
+        "block";
+
     }
+
   };
+
 
   continueButton.onclick=()=>{
 
@@ -1259,8 +1547,13 @@ function showUpload(){
       "user"
     );
 
-    setTimeout(showSummary,300);
+    setTimeout(
+      showSummary,
+      300
+    );
+
   };
+
 
   box.appendChild(fileInput);
   box.appendChild(uploadButton);
@@ -1272,7 +1565,40 @@ function showUpload(){
   scrollDown();
 }
 
-/* RESUMEN */
+
+/* ==========================
+   DATOS ESPECIALES DEL CASO
+========================== */
+
+function getSpecialCaseSummary(){
+
+  if(
+    data.empresa==="Suncall" &&
+    data.tema==="⏰ Horarios y horas extras" &&
+    data.subtema==="No me pagaron horas extras"
+  ){
+
+    return `
+      <br><br>
+
+      📅 <b>Fecha de horas extras:</b><br>
+      ${escapeHTML(data.fechaHorasExtra)}<br><br>
+
+      ⏰ <b>Horas trabajadas:</b><br>
+      ${escapeHTML(data.horasExtra)}<br><br>
+
+      👤 <b>Reporte previo:</b><br>
+      ${escapeHTML(data.reportePrevio)}
+    `;
+  }
+
+  return "";
+}
+
+
+/* ==========================
+   RESUMEN
+========================== */
 
 function showSummary(){
 
@@ -1281,36 +1607,40 @@ function showSummary(){
     ? `${data.evidencia.length} archivo(s) adjunto(s)`
     : "Sin evidencia adjunta";
 
+
   addMessage(`
     📋 <b>Revisa la información de tu reporte</b><br><br>
 
     <div class="summary">
 
-    🏭 <b>Empresa:</b>
-    ${escapeHTML(data.empresa)}<br>
+      🏭 <b>Empresa:</b>
+      ${escapeHTML(data.empresa)}<br>
 
-    📌 <b>Tema:</b>
-    ${escapeHTML(data.tema)}<br>
+      📌 <b>Tema:</b>
+      ${escapeHTML(data.tema)}<br>
 
-    🔹 <b>Situación:</b>
-    ${escapeHTML(data.subtema)}<br>
+      🔹 <b>Situación:</b>
+      ${escapeHTML(data.subtema)}<br>
 
-    👤 <b>Nombre:</b>
-    ${escapeHTML(data.nombre)}<br>
+      👤 <b>Nombre:</b>
+      ${escapeHTML(data.nombre)}<br>
 
-    🪪 <b>No. empleado:</b>
-    ${escapeHTML(data.empleado)}<br>
+      🪪 <b>No. empleado:</b>
+      ${escapeHTML(data.empleado)}<br>
 
-    📎 <b>Evidencia:</b>
-    ${escapeHTML(evidenceText)}<br><br>
+      📎 <b>Evidencia:</b>
+      ${escapeHTML(evidenceText)}<br><br>
 
-    📝 <b>Descripción:</b><br>
-    ${escapeHTML(data.descripcion)}
+      📝 <b>Descripción:</b><br>
+      ${escapeHTML(data.descripcion)}
+
+      ${getSpecialCaseSummary()}
 
     </div><br>
 
     <b>¿La información es correcta?</b>
   `);
+
 
   addOptions([
     "✅ Sí, registrar mi caso",
@@ -1318,22 +1648,32 @@ function showSummary(){
   ],confirmSummary);
 }
 
+
 function confirmSummary(choice){
 
   if(choice.startsWith("✅")){
+
     registerCase();
+
   }else{
+
     correctionMenu();
+
   }
+
 }
 
-/* CORRECCIONES */
+
+/* ==========================
+   CORRECCIONES
+========================== */
 
 function correctionMenu(){
 
   addMessage(`
     ✏️ <b>¿Qué información deseas corregir?</b>
   `);
+
 
   addOptions([
     "Empresa",
@@ -1345,82 +1685,101 @@ function correctionMenu(){
   ],handleCorrection);
 }
 
+
 function handleCorrection(choice){
 
   if(choice==="Descripción"){
 
-    addMessage(
-      "📝 Escribe nuevamente la descripción de tu situación."
-    );
+    addMessage(`
+      📝 Escribe nuevamente la descripción
+      de tu situación.
+    `);
 
     enableInput(
       "Nueva descripción...",
       value=>{
+
         data.descripcion=value;
+
         showSummary();
+
       }
     );
 
     return;
   }
 
+
   if(choice==="Nombre"){
 
-    addMessage(
-      "👤 Escribe nuevamente tu nombre completo."
-    );
+    addMessage(`
+      👤 Escribe nuevamente tu nombre completo.
+    `);
 
     enableInput(
       "Nombre completo...",
       value=>{
+
         data.nombre=value;
+
         showSummary();
+
       }
     );
 
     return;
   }
 
+
   if(choice==="Número de empleado"){
 
-    addMessage(
-      "🪪 Escribe nuevamente tu número de empleado."
-    );
+    addMessage(`
+      🪪 Escribe nuevamente tu número de empleado.
+    `);
 
     enableInput(
       "Número de empleado...",
       value=>{
+
         data.empleado=value;
+
         showSummary();
+
       }
     );
 
     return;
   }
 
+
   if(choice==="Empresa"){
 
-    addMessage(
-      "🏭 Selecciona nuevamente tu empresa."
-    );
+    addMessage(`
+      🏭 Selecciona nuevamente tu empresa.
+    `);
 
     addSelector(
       companies,
       "🏭 Seleccionar empresa",
       value=>{
+
         data.empresa=value;
+
         showSummary();
+
       }
     );
 
     return;
   }
 
+
   if(choice==="Tema o situación"){
 
-    addMessage(
-      "📋 Selecciona nuevamente el tema."
-    );
+    addMessage(`
+      📋 Selecciona nuevamente el tema.
+    `);
+
 
     addSelector(
       topics,
@@ -1429,31 +1788,41 @@ function handleCorrection(choice){
 
         data.tema=value;
 
+
         if(value==="📝 Otro tema"){
 
           data.subtema="Otro tema";
+
           showSummary();
 
         }else{
 
           addMessage(`
             <b>${escapeHTML(value)}</b><br><br>
+
             Selecciona nuevamente la situación.
           `);
+
 
           addOptions(
             subtopics[value],
             sub=>{
+
               data.subtema=sub;
+
               showSummary();
+
             }
           );
+
         }
+
       }
     );
 
     return;
   }
+
 
   if(choice==="Evidencia"){
 
@@ -1464,48 +1833,237 @@ function handleCorrection(choice){
       adjuntar evidencia.
     `);
 
+
     addOptions([
       "📎 Sí, adjuntar evidencia",
       "Continuar sin evidencia"
     ],value=>{
 
       if(value.startsWith("📎")){
+
         showUpload();
+
       }else{
+
         showSummary();
+
       }
 
     });
+
   }
+
 }
 
-/* FOLIO */
+
+/* =====================================================
+   REGISTRO DEL CASO
+===================================================== */
 
 function registerCase(){
 
   data.folio=generateFolio();
 
+
+  const isSuncallOvertime=
+
+    data.empresa==="Suncall" &&
+
+    data.tema==="⏰ Horarios y horas extras" &&
+
+    data.subtema==="No me pagaron horas extras";
+
+
   setTimeout(()=>{
 
-    addMessage(`
-      🎫 <b>¡Listo! Tu reporte ha sido registrado.</b><br><br>
 
-      Tu folio de seguimiento es:
+    if(isSuncallOvertime){
 
-      <div class="folio">
-        ${escapeHTML(data.folio)}
-      </div>
 
-      Conserva este folio para identificar tu reporte.<br><br>
+      addMessage(`
+        🎫 <b>¡Listo! Tu reporte ha sido registrado.</b><br><br>
 
-      Tu caso será canalizado para su atención
-      y podrás recibir seguimiento por este mismo medio. 🤝<br><br>
+        Tu folio de seguimiento es:
 
-      <b>Centro de Atención CATEM Aguascalientes</b>
-    `);
+        <div class="folio">
+          ${escapeHTML(data.folio)}
+        </div>
+
+        Tu caso ha sido canalizado para atención de:<br><br>
+
+        👤 <b>Gilberto Rodríguez</b><br>
+        Delegado CATEM — Suncall<br><br>
+
+        ⏱️ El
+        <b>Centro de Atención CATEM Aguascalientes</b>
+        dará seguimiento a tu reporte
+        hasta su resolución.<br><br>
+
+        Conserva tu folio para identificar
+        tu caso. 🤝
+      `);
+
+
+      setTimeout(()=>{
+        showInternalTrackingButton();
+      },500);
+
+
+    }else{
+
+
+      addMessage(`
+        🎫 <b>¡Listo! Tu reporte ha sido registrado.</b><br><br>
+
+        Tu folio de seguimiento es:
+
+        <div class="folio">
+          ${escapeHTML(data.folio)}
+        </div>
+
+        Conserva este folio para identificar
+        tu reporte.<br><br>
+
+        Tu caso será canalizado para su atención
+        y podrás recibir seguimiento
+        por este mismo medio. 🤝<br><br>
+
+        <b>
+          Centro de Atención CATEM Aguascalientes
+        </b>
+      `);
+
+    }
 
   },500);
 }
+
+
+/* =====================================================
+   VISTA INTERNA CATEM
+===================================================== */
+
+function showInternalTrackingButton(){
+
+  const box=
+    document.createElement("div");
+
+  box.className="selector-box";
+
+
+  const label=
+    document.createElement("div");
+
+  label.className="demo-label";
+
+  label.textContent=
+    "SOLO PARA DEMOSTRACIÓN";
+
+
+  const button=
+    document.createElement("button");
+
+  button.className="selector-button";
+
+  button.innerHTML=
+    "👁️ Ver seguimiento interno del caso";
+
+
+  button.onclick=()=>{
+
+    box.remove();
+
+    showInternalTracking();
+
+  };
+
+
+  box.appendChild(label);
+  box.appendChild(button);
+
+  chat.appendChild(box);
+
+  scrollDown();
+}
+
+
+function showInternalTracking(){
+
+  addMessage(`
+    🔐 <b>VISTA INTERNA CATEM</b><br><br>
+
+    <span class="demo-label">
+      DEMOSTRACIÓN
+    </span>
+
+    <div class="internal">
+
+      🎫 <b>Folio:</b><br>
+      ${escapeHTML(data.folio)}<br><br>
+
+      🏭 <b>Empresa:</b><br>
+      Suncall<br><br>
+
+      📌 <b>Motivo:</b><br>
+      Horas extras no pagadas<br><br>
+
+      👤 <b>Delegado asignado:</b><br>
+      Gilberto Rodríguez
+
+    </div>
+
+    <br>
+
+    <div class="status-step">
+      ✅ <b>Caso recibido</b>
+    </div>
+
+    ↓
+
+    <div class="status-step">
+      ✅ <b>Empresa identificada:</b> Suncall
+    </div>
+
+    ↓
+
+    <div class="status-step">
+      ✅ <b>Delegado asignado:</b>
+      Gilberto Rodríguez
+    </div>
+
+    ↓
+
+    <div class="status-step">
+      🟡 <b>Pendiente de atención</b>
+    </div>
+
+    ↓
+
+    <div class="status-step">
+      🔔 <b>Recordatorio automático</b><br>
+      Si el caso continúa pendiente.
+    </div>
+
+    ↓
+
+    <div class="status-step">
+      ⚠️ <b>Escalamiento a Coordinación</b><br>
+      Si el caso no es atendido dentro
+      del plazo establecido.
+    </div>
+
+    <div class="highlight">
+      📊 El seguimiento y los cambios de estatus
+      quedarán registrados en el concentrado del CAD.
+    </div>
+  `);
+
+}
+
+
+/* ==========================
+   GENERAR FOLIO
+========================== */
 
 function generateFolio(){
 
@@ -1521,7 +2079,10 @@ function generateFolio(){
   return `${code}-${year}-${String(number).padStart(4,"0")}`;
 }
 
-/* ARRANCAR */
+
+/* ==========================
+   ARRANCAR
+========================== */
 
 start();
 
