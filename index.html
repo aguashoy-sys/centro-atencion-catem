@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Centro de Atención CATEM</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:#d9dbd5;
+  display:flex;
+  justify-content:center;
+  min-height:100vh;
+}
+
+.phone{
+  width:100%;
+  max-width:480px;
+  height:100vh;
+  background:#efeae2;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 0 20px rgba(0,0,0,.15);
+}
+
+/* HEADER */
+
+.header{
+  background:#075e54;
+  color:white;
+  padding:10px 12px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:68px;
+}
+
+.logo{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  object-fit:cover;
+  background:white;
+}
+
+.header-info{
+  flex:1;
+}
+
+.header-title{
+  font-weight:bold;
+  font-size:17px;
+}
+
+.header-status{
+  font-size:13px;
+  opacity:.9;
+  margin-top:3px;
+}
+
+/* CHAT */
+
+.chat{
+  flex:1;
+  overflow-y:auto;
+  padding:16px 12px 100px;
+  background-color:#efeae2;
+  background-image:
+    radial-gradient(circle at 20px 20px, rgba(0,0,0,.025) 1px, transparent 1px);
+  background-size:28px 28px;
+}
+
+.message{
+  max-width:88%;
+  padding:10px 12px;
+  border-radius:8px;
+  margin-bottom:10px;
+  line-height:1.4;
+  font-size:15px;
+  box-shadow:0 1px 1px rgba(0,0,0,.08);
+  animation:fadeIn .25s ease;
+}
+
+.bot{
+  background:white;
+  align-self:flex-start;
+}
+
+.user{
+  background:#d9fdd3;
+  margin-left:auto;
+}
+
+.time{
+  display:block;
+  text-align:right;
+  color:#777;
+  font-size:10px;
+  margin-top:5px;
+}
+
+/* OPTIONS */
+
+.options{
+  margin:8px 0 16px;
+}
+
+.option{
+  background:white;
+  border:none;
+  width:100%;
+  text-align:left;
+  padding:13px 14px;
+  margin-bottom:7px;
+  border-radius:8px;
+  font-size:14px;
+  cursor:pointer;
+  box-shadow:0 1px 2px rgba(0,0,0,.10);
+  transition:.15s;
+}
+
+.option:hover{
+  background:#f6f6f6;
+}
+
+.option:active{
+  transform:scale(.99);
+}
+
+.num{
+  color:#777;
+  font-weight:bold;
+  margin-right:7px;
+}
+
+/* INPUT */
+
+.input-area{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  padding:8px;
+  background:#f0f2f5;
+  display:flex;
+  gap:7px;
+}
+
+.input-area input{
+  flex:1;
+  border:none;
+  border-radius:22px;
+  padding:12px 15px;
+  font-size:15px;
+  outline:none;
+  background:white;
+}
+
+.send{
+  width:44px;
+  height:44px;
+  border:none;
+  border-radius:50%;
+  background:#00a884;
+  color:white;
+  font-size:19px;
+  cursor:pointer;
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(5px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+.small{
+  color:#666;
+  font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="phone">
+
+  <div class="header">
+    <img src="logo.png" class="logo">
+    <div class="header-info">
+      <div class="header-title">Centro de Atención CATEM</div>
+      <div class="header-status">en línea</div>
+    </div>
+    <div>⋮</div>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="input-area">
+    <input
+      id="messageInput"
+      type="text"
+      placeholder="Escribe un mensaje..."
+      disabled
+    >
+    <button class="send" id="sendButton" disabled>➤</button>
+  </div>
+
+</div>
+
+<script>
+
+const chat = document.getElementById("chat");
+const input = document.getElementById("messageInput");
+const sendButton = document.getElementById("sendButton");
+
+let employeeData = {
+  empresa:"",
+  tema:"",
+  subtema:"",
+  descripcion:""
+};
+
+const companies = [
+  "Nissan Powertrain",
+  "Nissan Vehículos",
+  "Nissan Planta A2",
+  "JATCO Planta 1",
+  "JATCO Planta 2",
+  "Mazda",
+  "BOSCH",
+  "Suncall",
+  "Riken",
+  "Minth",
+  "Tokaikogyo",
+  "APRC",
+  "Topre",
+  "Orotex"
+];
+
+const topics = [
+  "💰 Pago y prestaciones",
+  "🏖️ Vacaciones y permisos",
+  "⏰ Horarios y horas extras",
+  "⚠️ Actas, sanciones o suspensión",
+  "🚪 Despido o renuncia",
+  "🛑 Maltrato, acoso o discriminación",
+  "🦺 Seguridad y accidentes",
+  "🏥 IMSS, INFONAVIT e incapacidades",
+  "🔄 Cambio de puesto, área o turno",
+  "🚌 Transporte",
+  "🍽️ Comedor",
+  "🤝 Beneficios CATEM",
+  "📝 Otro tema"
+];
+
+const subtopics = {
+
+"💰 Pago y prestaciones":[
+"Pago incompleto o incorrecto de nómina",
+"Descuento que no reconozco o considero incorrecto",
+"Bono o incentivo no pagado",
+"Aguinaldo",
+"Reparto de utilidades (PTU)",
+"Prima vacacional",
+"Prima dominical o días festivos",
+"Fondo/caja de ahorro",
+"Vales u otra prestación",
+"Duda sobre mi recibo de nómina",
+"Otro tema de pago o prestaciones"
+],
+
+"🏖️ Vacaciones y permisos":[
+"No me permiten tomar mis vacaciones",
+"Tengo dudas sobre cuántos días me corresponden",
+"No respetan las fechas de vacaciones acordadas",
+"Me quieren obligar a tomar vacaciones",
+"Tengo un problema con un permiso",
+"Me negaron un permiso",
+"Tengo dudas sobre permisos con o sin goce de sueldo",
+"Otro tema de vacaciones o permisos"
+],
+
+"⏰ Horarios y horas extras":[
+"No me pagaron horas extras",
+"Me pagaron incorrectamente las horas extras",
+"Me están pidiendo trabajar horas extras y tengo dudas",
+"No están respetando mi horario de trabajo",
+"Tengo problemas con mi hora de entrada o salida",
+"Tengo problemas con mis descansos durante la jornada",
+"Me están pidiendo trabajar en mi día de descanso",
+"Tengo dudas sobre mi jornada u horario de trabajo",
+"Otro tema de horarios u horas extras"
+],
+
+"⚠️ Actas, sanciones o suspensión":[
+"Me levantaron un acta y no estoy de acuerdo",
+"Me piden firmar un acta o documento y tengo dudas",
+"Recibí una llamada de atención o sanción",
+"Me suspendieron del trabajo",
+"Me quieren suspender y necesito orientación",
+"Me aplicaron una sanción o castigo que considero injusto",
+"Me citaron con Recursos Humanos y necesito orientación",
+"Tengo dudas sobre una medida disciplinaria",
+"Otro tema relacionado con actas, sanciones o suspensión"
+],
+
+"🚪 Despido o renuncia":[
+"Me despidieron y necesito orientación",
+"Me dijeron que ya no me presente a trabajar",
+"Me están pidiendo que firme mi renuncia",
+"Me están presionando para que renuncie",
+"Quiero renunciar y tengo dudas sobre el proceso",
+"Tengo dudas sobre mi finiquito o liquidación",
+"Me ofrecieron un convenio para terminar la relación laboral",
+"Creo que podrían despedirme y necesito orientación",
+"Otro tema relacionado con despido o renuncia"
+],
+
+"🛑 Maltrato, acoso o discriminación":[
+"Recibo gritos, insultos o trato humillante",
+"Sufro amenazas o intimidación en el trabajo",
+"Sufro hostigamiento o acoso laboral",
+"Sufro acoso u hostigamiento sexual",
+"Considero que estoy siendo discriminado/a",
+"Tengo problemas constantes con un supervisor o jefe",
+"Tengo problemas constantes con un compañero de trabajo",
+"Tengo miedo de reportar una situación que está ocurriendo",
+"Quiero reportar una situación que le está ocurriendo a otra persona",
+"Otro tema relacionado con maltrato, acoso o discriminación"
+],
+
+"🦺 Seguridad y accidentes":[
+"Tuve un accidente en el trabajo",
+"Tuve un accidente durante el traslado al trabajo o a mi casa",
+"Existe una condición insegura en mi área de trabajo",
+"No tengo el equipo de protección necesario",
+"Mi equipo de protección está dañado o es inadecuado",
+"Me están pidiendo realizar una actividad que considero insegura",
+"Reporté un riesgo o condición insegura y no ha sido atendido",
+"Tengo dudas sobre un accidente o riesgo de trabajo",
+"Otro tema relacionado con seguridad o accidentes"
+],
+
+"🏥 IMSS, INFONAVIT e incapacidades":[
+"Tengo problemas con una incapacidad",
+"No me están respetando o recibiendo mi incapacidad",
+"Tengo dudas sobre el pago de mi incapacidad",
+"Tengo problemas con mi alta, baja o registro ante el IMSS",
+"Mis datos o salario registrados ante el IMSS son incorrectos",
+"Tengo un problema relacionado con INFONAVIT",
+"Tengo dudas sobre descuentos de INFONAVIT en mi nómina",
+"Tengo dudas sobre un trámite del IMSS o INFONAVIT",
+"Otro tema relacionado con IMSS, INFONAVIT o incapacidades"
+],
+
+"🔄 Cambio de puesto, área o turno":[
+"Me quieren cambiar de turno",
+"Me cambiaron de turno sin estar de acuerdo",
+"Me quieren cambiar de área",
+"Me cambiaron de área y tengo un problema",
+"Me quieren cambiar de puesto o funciones",
+"Estoy realizando funciones diferentes a las de mi puesto",
+"El cambio afecta mi salario o prestaciones",
+"Solicité un cambio de turno, área o puesto y necesito seguimiento",
+"Tengo dudas sobre un cambio que me propusieron",
+"Otro tema relacionado con cambio de puesto, área o turno"
+],
+
+"🚌 Transporte":[
+"El transporte llegó tarde o no pasó",
+"Tengo problemas con mi ruta o parada",
+"Necesito solicitar un cambio de ruta o parada",
+"El transporte va saturado o no hay suficiente espacio",
+"La unidad se encuentra en malas condiciones",
+"El conductor maneja de forma insegura",
+"Tuve un problema con el conductor o personal de transporte",
+"Tengo un problema con el transporte de entrada o salida de mi turno",
+"Ya reporté un problema de transporte y continúa ocurriendo",
+"Otro tema relacionado con transporte"
+],
+
+"🍽️ Comedor":[
+"La comida está en malas condiciones",
+"La calidad de los alimentos es deficiente",
+"La cantidad de comida es insuficiente",
+"No alcanzó comida durante mi turno",
+"Tengo un problema con el horario o tiempo para comer",
+"Las instalaciones o utensilios del comedor están en malas condiciones",
+"Tengo un problema con la higiene del comedor",
+"Tuve un problema con el personal del comedor",
+"Ya reporté un problema del comedor y continúa ocurriendo",
+"Otro tema relacionado con el comedor"
+],
+
+"🤝 Beneficios CATEM":[
+"Quiero conocer los beneficios disponibles para afiliados",
+"Descuentos y convenios CATEM",
+"Eventos y actividades CATEM",
+"Necesito ayuda para utilizar un beneficio",
+"Tengo un problema con un beneficio o convenio",
+"Quiero saber si existe algún beneficio para una necesidad específica",
+"Otro tema relacionado con beneficios CATEM"
+]
+
+};
+
+function time(){
+  return new Date().toLocaleTimeString("es-MX",{
+    hour:"2-digit",
+    minute:"2-digit"
+  });
+}
+
+function addMessage(text,type="bot"){
+
+  const div=document.createElement("div");
+  div.className="message "+type;
+
+  div.innerHTML=text+
+  `<span class="time">${time()}</span>`;
+
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+function addOptions(items,callback){
+
+  const container=document.createElement("div");
+  container.className="options";
+
+  items.forEach((item,index)=>{
+
+    const button=document.createElement("button");
+    button.className="option";
+
+    button.innerHTML=
+    `<span class="num">◾ ${index+1}.</span> ${item}`;
+
+    button.onclick=()=>{
+
+      container.remove();
+      addMessage(item,"user");
+      callback(item);
+
+    };
+
+    container.appendChild(button);
+
+  });
+
+  chat.appendChild(container);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+function start(){
+
+  addMessage(`
+  👋 ¡Hola! Bienvenido al <b>Centro de Atención CATEM Aguascalientes</b>.<br><br>
+
+  Estamos aquí para <b>escucharte, orientarte y dar seguimiento</b>
+  a cualquier duda o situación relacionada con tu trabajo. 🤝<br><br>
+
+  Para comenzar, dinos:<br><br>
+
+  🏭 <b>¿En qué empresa trabajas?</b><br><br>
+
+  Selecciona tu empresa de la lista 👇
+  `);
+
+  setTimeout(()=>{
+
+    addOptions(companies,selectCompany);
+
+  },500);
+
+}
+
+function selectCompany(company){
+
+  employeeData.empresa=company;
+
+  setTimeout(()=>{
+
+    addMessage(`
+    🤝 Gracias.<br><br>
+
+    📋 <b>¿Sobre qué tema necesitas apoyo?</b><br><br>
+
+    Selecciona una opción 👇
+    `);
+
+    addOptions(topics,selectTopic);
+
+  },400);
+
+}
+
+function selectTopic(topic){
+
+  employeeData.tema=topic;
+
+  if(topic==="📝 Otro tema"){
+    requestDescription();
+    return;
+  }
+
+  const list=subtopics[topic];
+
+  setTimeout(()=>{
+
+    addMessage(`
+    <b>${topic}</b><br><br>
+    ¿Cuál de estas situaciones describe mejor lo que necesitas?
+    `);
+
+    addOptions(list,selectSubtopic);
+
+  },400);
+
+}
+
+function selectSubtopic(subtopic){
+
+  employeeData.subtema=subtopic;
+
+  setTimeout(()=>{
+    requestDescription();
+  },400);
+
+}
+
+function requestDescription(){
+
+  addMessage(`
+  📝 <b>Ahora cuéntanos brevemente qué está sucediendo.</b><br><br>
+
+  Describe la situación con tus propias palabras.
+  No te preocupes por utilizar términos técnicos; escribe lo que pasó
+  de la manera más sencilla posible.<br><br>
+
+  💡 Entre más información nos compartas, mejor podremos orientarte.
+  `);
+
+  input.disabled=false;
+  sendButton.disabled=false;
+  input.focus();
+
+}
+
+function sendDescription(){
+
+  const value=input.value.trim();
+
+  if(!value) return;
+
+  employeeData.descripcion=value;
+
+  addMessage(value,"user");
+
+  input.value="";
+  input.disabled=true;
+  sendButton.disabled=true;
+
+  setTimeout(()=>{
+
+    addMessage(`
+    🤖 <b>Gracias. Estamos analizando tu situación.</b><br><br>
+
+    En la versión completa del Centro de Atención,
+    la inteligencia artificial analizará aquí la información
+    para determinar cómo podemos orientarte y si es necesario
+    canalizar tu caso para atención.
+    `);
+
+  },700);
+
+}
+
+sendButton.onclick=sendDescription;
+
+input.addEventListener("keydown",function(e){
+  if(e.key==="Enter"){
+    sendDescription();
+  }
+});
+
+start();
+
+</script>
+
+</body>
+</html>
